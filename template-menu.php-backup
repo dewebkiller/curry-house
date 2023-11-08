@@ -1,0 +1,133 @@
+<?php 
+get_header( 'inner');
+/* Template Name: Menu */
+?>
+<?php include_once ('includes/menu-verticle.php');?>
+<div class="section-menu-inner section-padding">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="menu-inner-content">
+          
+          <?php
+            // Get list of all taxonomy terms  -- In simple categories title
+            $args = array(
+                        'taxonomy' => 'kh_menu_cat',
+                        'orderby' => 'name',
+                        'order'   => 'ASC'
+                    );
+            $cats = get_categories($args);
+            $i=1;
+
+            // For every Terms of custom taxonomy get their posts by term_id
+            foreach($cats as $cat) {
+        ?>
+
+    <div id="menucat-<?php echo $i++;?>" class="menitemscontainer">
+    <h2><?php echo $cat->name; ?></h2>
+
+
+            <?php
+                // Query Arguments
+                $args = array(
+                    'post_type' => 'kh_menu', // the post type
+                    'tax_query' => array(
+                        array(
+                            'taxonomy' => 'kh_menu_cat', // the custom vocabulary
+                            'field'    => 'term_id',          // term_id, slug or name  (Define by what you want to search the below term)    
+                            'terms'    => $cat->term_id,      // provide the term slugs
+                        ),
+                    ),
+                );
+
+                // The query
+                $the_query = new WP_Query( $args );
+
+                // The Loop
+                if ( $the_query->have_posts() ) {
+                    
+
+                    echo '<ul class="menuul menul-inner">';
+                    $html_list_items = '';
+                    while ( $the_query->have_posts() ) {
+                        $the_query->the_post();
+                        ?>
+                        <li>
+                        <?php
+// Must be inside a loop.
+ 
+if ( has_post_thumbnail() ) {
+  ?>
+  <div class="menu-image-thumbnail">
+  <a data-fancybox="gallery" href="<?php echo bloginfo('template_url');?>/images/p3.jpg">
+  <?php
+    the_post_thumbnail();
+    ?>
+    </a>
+    </div>
+<?php
+  }
+else {
+  ?>
+  <div class="menu-image-thumbnail">
+  <a data-fancybox="gallery" href="<?php echo bloginfo('template_url');?>/images/p3.jpg"><img src="<?php echo bloginfo('template_url');?>/images/logo.png" alt="" width="100" height="100"></a>
+</div>
+        <?php
+}
+?>
+                            
+                            <div class="menu-content">
+                                <h3><?php the_title();?></h3>
+                                <?php the_content();?>
+                            </div>
+                            <div class="menu-price">
+                                $20.0
+                            </div>
+                        </li>
+                        <?php
+                    }
+                    echo $html_list_items;
+                    echo '</ul>';
+
+                } else {
+                    // no posts found
+                }
+
+                wp_reset_postdata(); // reset global $post;
+
+                ?>
+</div>
+    <?php } ?>
+              
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="menu-categories sidebar-widget" id="sidebar">
+          <ul>
+            <?php
+          // Get the taxonomy's terms
+$terms = get_terms(
+  array(
+      'taxonomy'   => 'kh_menu_cat',
+      'hide_empty' => false,
+  )
+);
+// Check if any term exists
+if ( ! empty( $terms ) && is_array( $terms ) ) {
+  $j=1;
+  // Run a loop and print them all
+  foreach ( $terms as $term ) { ?>
+            <li><a href="#menucat-<?php echo $j++; ?>">
+                <?php echo $term->name; ?>
+              </a></li><?php
+  }
+} 
+          ?>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<?php include_once('footer.php');
